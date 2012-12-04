@@ -5,6 +5,7 @@ module Main(main) where
 import Data.Array.MArray
 import Data.Array.IO
 import Data.Char
+import System.Environment
 
 #if __GLASGOW_HASKELL__ >= 603
 #include "ghcconfig.h"
@@ -259,7 +260,7 @@ alex_deflt :: AlexAddr
 alex_deflt = AlexA# "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"#
 
 alex_accept = listArray (0::Int,9) [[],[(AlexAcc (alex_action_0))],[(AlexAcc (alex_action_1))],[(AlexAcc (alex_action_2))],[(AlexAcc (alex_action_3))],[(AlexAcc (alex_action_4))],[(AlexAcc (alex_action_5))],[(AlexAcc (alex_action_6))],[(AlexAcc (alex_action_7))],[(AlexAcc (alex_action_8))]]
-{-# LINE 20 "brainfuck.x" #-}
+{-# LINE 21 "brainfuck.x" #-}
 
 
 emit :: Token -> (AlexPosn, Char, String) -> Int -> Alex Token
@@ -296,9 +297,10 @@ scanner str = runAlex str $ do
 
 main :: IO ()
 main = do
-  s <- getContents
+  filename <- getArgs >>= return . head
+  contents <- readFile filename
   tape <- newArray (0, 1024) 0
-  case (scanner s) of
+  case (scanner contents) of
     Left message -> print message
     Right tokens -> do tokenArr <- newListArray (0, (length tokens)) tokens
                        interp tape 0 tokenArr 0

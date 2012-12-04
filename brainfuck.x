@@ -3,6 +3,7 @@ module Main(main) where
 import Data.Array.MArray
 import Data.Array.IO
 import Data.Char
+import System.Environment
 }
 %wrapper "monadUserState"
 
@@ -53,9 +54,10 @@ scanner str = runAlex str $ do
 
 main :: IO ()
 main = do
-  s <- getContents
+  filename <- getArgs >>= return . head
+  contents <- readFile filename
   tape <- newArray (0, 1024) 0
-  case (scanner s) of
+  case (scanner contents) of
     Left message -> print message
     Right tokens -> do tokenArr <- newListArray (0, (length tokens)) tokens
                        interp tape 0 tokenArr 0
